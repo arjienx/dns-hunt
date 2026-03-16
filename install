@@ -1,0 +1,65 @@
+#!/bin/bash
+# Arjienx Advanced DNSTT App Script v.0.2.3x 2026
+
+cd ~
+rm -rf install
+architecture=$(uname -m)
+echo "Architecture: $architecture"
+
+if [ ! -d "$HOME/storage" ]; then
+    termux-setup-storage
+fi
+
+version=$(getprop ro.build.version.release)
+if [[ "$version" =~ ^5.* || "$version" =~ ^6.* ]]; then
+    echo "deb https://packages.termux.dev/termux-main-21/ stable main" > "$PREFIX/etc/apt/sources.list"
+    echo "deb https://termux.dev/game-packages-21-bin games stable" > "$PREFIX/etc/apt/sources.list.d/game.list"
+    echo "deb https://termux.dev/science-packages-21-bin science stable" > "$PREFIX/etc/apt/sources.list.d/science.list"
+    clear
+else
+    echo "Current version: $version"
+fi
+
+export DEBIAN_FRONTEND=noninteractive
+apt update
+apt install -y nano curl -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+
+rm -rf ~/.bashrc
+echo "alias arjienx-x='cd ~ && arjienx-x'" > ~/.bashrc
+source ~/.bashrc
+
+arch=$(uname -m)
+
+case "$arch" in
+    aarch64|arm64)
+        CLIENT_URL="https://raw.githubusercontent.com/arjienx/dns-hunt/main/arjienx-arm64"
+        ;;
+    armv7l|armv7)
+        CLIENT_URL="https://raw.githubusercontent.com/arjienx/dns-hunt/main/arjienx-armv7"
+        ;;
+    armv8l)
+        CLIENT_URL="https://raw.githubusercontent.com/arjienx/dns-hunt/main/arjienx-arm64"
+        ;;
+    *)
+        echo "unknown architecture: $arch"
+        exit 1
+        ;;
+esac
+
+echo "" > ../usr/bin/arjienx-x
+curl --insecure -fL -o ../usr/bin/arjienx-x "$CLIENT_URL"
+
+if [ $? -eq 0 ]; then
+    chmod +x ../usr/bin/arjienx-x
+    for i in {1..2}; do
+        if [ ! -x ../usr/bin/arjienx-x ]; then
+            chmod +x ../usr/bin/arjienx-x
+        fi
+        sleep 3
+    done
+    echo "Arjienx DNS Hunt - Successfully Installed."
+    echo "type 'arjienx-x arjienx.xxxxx.xxx' to run."
+else
+    rm -rf ../usr/bin/arjienx-x
+    echo "Download Failed. Use Stable Connection. Try Again."
+fi
