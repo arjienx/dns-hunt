@@ -22,7 +22,7 @@ fi
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-y | apt upgrade
+apt upgrade -y
 apt install -y nano curl -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
 rm -rf ~/.bashrc
